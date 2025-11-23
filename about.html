@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>За нас - Nex$tep Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="responsive.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .vanta-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .user-profile {
+            display: none;
+        }
+        
+        .user-profile.show {
+            display: flex;
+        }
+        
+        .team-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .team-avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .mission-icon {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        /* Mobile Menu Button - Hidden on desktop */
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="index.html"><img src="logo.png" alt="logo Nex$tep Finance" class="h-16"></a>
+                    <span class="text-white font-bold text-xl">Nex$tep Finance</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-pink-300 transition-colors duration-300">Почетна</a>
+                    <a href="courses.html" class="text-white hover:text-pink-300 transition-colors duration-300">Курсеви</a>
+                    <a href="quiz.html" class="text-white hover:text-pink-300 transition-colors duration-300">Квизови</a>
+                    <a href="about.html" class="text-pink-300 font-semibold">За нас</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <!-- Login/Register Buttons -->
+                <div id="auth-buttons" class="hidden md:flex items-center space-x-3">
+                    <button onclick="openRegisterModal()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+                
+                <!-- User Profile -->
+                <div id="user-profile" class="user-profile items-center space-x-3">
+                    <span id="username" class="text-white font-semibold"></span>
+                    <div class="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <button onclick="logout()" class="text-white/80 hover:text-white transition-colors duration-300">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="mobile-menu">
+                <a href="index.html" class="text-gray-800 hover:text-pink-600">Почетна</a>
+                <a href="courses.html" class="text-gray-800 hover:text-pink-600">Курсеви</a>
+                <a href="quiz.html" class="text-gray-800 hover:text-pink-600">Квизови</a>
+                <a href="about.html" class="text-gray-800 hover:text-pink-600">За нас</a>
+                <div class="p-4 border-t border-gray-200">
+                    <button onclick="openRegisterModal()" class="w-full mb-2 bg-white/20 text-gray-800 px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="relative pt-24 pb-12 overflow-hidden">
+        <div id="vanta-bg" class="vanta-canvas"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-5xl md:text-6xl font-black text-white mb-6">За нас</h1>
+            <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                Запознај го тимот што стои зад Nex$tep Finance и нашата мисија
+            </p>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-white mb-8">Нашата мисија</h2>
+                    <div class="glass-card rounded-2xl p-8 mb-12">
+                        <p class="text-xl text-white/90 leading-relaxed">
+                            Ние сме тим на млади ентузијасти кои веруваат дека финансиската едукација треба да биде достапна, 
+                            разбирлива и забавна за сите млади луѓе. Нашата мисија е да ти помогнеме да ги совладаш 
+                            основите на финансиското управување преку интерактивни алатки и реални сценарија.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center slide-in">
+                        <div class="mission-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-graduation-cap text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Едукација</h3>
+                        <p class="text-white/80">
+                            Обезбедуваме квалитетна финансиска едукација достапна за секој млад човек.
+                        </p>
+                    </div>
+                    
+                    <div class="text-center slide-in" style="animation-delay: 0.1s;">
+                        <div class="mission-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-gamepad text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Интеракција</h3>
+                        <p class="text-white/80">
+                            Учење преку игри, квизови и симулации што го прават процесот забавен.
+                        </p>
+                    </div>
+                    
+                    <div class="text-center slide-in" style="animation-delay: 0.2s;">
+                        <div class="mission-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-users text-white text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Заедница</h3>
+                        <p class="text-white/80">
+                            Градење заедница на млади луѓе кои учат и растат заедно.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-white/5">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-6">Нашиот тим</h2>
+                <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                    Запознај ги луѓето што стојат зад успехот на Nex$tep Finance
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="team-card rounded-2xl p-8 text-center slide-in">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-user-tie text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Стефан Поповски</h3>
+                    <p class="text-pink-300 font-semibold mb-4">Тим лидер</p>
+                    <p class="text-white/80">
+                        Водење на проектот, планирање, менаџирање на ресурси и партнерства.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="team-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.1s;">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-code text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Ивана Милошева</h3>
+                    <p class="text-pink-300 font-semibold mb-4">Апликациски и веб-развој</p>
+                    <p class="text-white/80">
+                        Одговорно лице за развој, одржување и техничка имплементација на апликацијата и веб-страницата.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="team-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.2s;">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-palette text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Ангела Здравковска</h3>
+                    <p class="text-pink-300 font-semibold mb-4">UX/UI дизајнер</p>
+                    <p class="text-white/80">
+                        Одговорно лице за дизајнирање на современ, интуитивен и пријателски кориснички интерфејс.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-dribbble text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="team-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.3s;">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-line text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Димитри Кочов</h3>
+                    <p class="text-pink-300 font-semibold mb-4">Финансиски експерт</p>
+                    <p class="text-white/80">
+                        Креира истражувачки и образовни материјали, ја гарантира точноста на содржината.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="team-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.4s;">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-bullhorn text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Лука Панов</h3>
+                    <p class="text-pink-300 font-semibold mb-4">Маркетинг и продажба</p>
+                    <p class="text-white/80">
+                        Развива маркетинг кампањи, работи на раст и ангажман на корисниците.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="team-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.5s;">
+                    <div class="team-avatar w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-headset text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Марија Михајлова</h3>
+                    <p class="text-pink-300 font-semibold mb-4">Корисничка поддршка и анализа</p>
+                    <p class="text-white/80">
+                        Следи повратни информации, решава проблеми и ја подобрува платформата врз база на корисничките искуства.
+                    </p>
+                    <div class="flex justify-center space-x-4 mt-6">
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white/60 hover:text-pink-300 transition-colors duration-300">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold text-white mb-6">Нашите достигнувања</h2>
+                </div>
+                
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div class="glass-card rounded-2xl p-8 text-center">
+                        <div class="text-4xl font-black text-white mb-2" id="users-counter">0</div>
+                        <div class="text-white/80">Корисници</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 text-center">
+                        <div class="text-4xl font-black text-white mb-2" id="courses-counter">0</div>
+                        <div class="text-white/80">Курсеви</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 text-center">
+                        <div class="text-4xl font-black text-white mb-2" id="quizzes-counter">0</div>
+                        <div class="text-white/80">Квизови</div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 text-center">
+                        <div class="text-4xl font-black text-white mb-2" id="badges-counter">0</div>
+                        <div class="text-white/80">Беџови</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="py-20 bg-white/5">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl font-bold text-white mb-8">Контактирај не</h2>
+                <p class="text-xl text-white/80 mb-12">
+                    Имаш прашања или предлози? Сакаш да се приклучиш на нашиот тим? 
+                    Контактирај не и заедно ќе направиме разлика!
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-envelope text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Email</h3>
+                        <p class="text-white/80">nexstep.finance2@gmail.com</p>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-phone text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Телефон</h3>
+                        <p class="text-white/80">071 552 900</p>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-semibold mb-2">Локација</h3>
+                        <p class="text-white/80">Велес, Македонија</p>
+                    </div>
+                </div>
+                
+                <a href="https://milioner.mk/vote/49102709-1b74-467b-bd0e-65959f465f6a" target="_blank" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-vote-yea mr-2"></i>
+                    Контактирај не!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black/20 backdrop-blur-md py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <span class="text-white font-bold text-xl">Nex$tep</span>
+                    <span class="text-white font-bold text-xl">Finance</span>
+                </div>
+                <p class="text-white/60 mb-4">© 2025 Nex$tep Finance. Сите права задржани.</p>
+                <p class="text-white/60 text-sm">Направено со <i class="fas fa-heart text-pink-400"></i> од млади за млади</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Најава</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="login-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="login()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најави се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Немаш профил? <a href="#" onclick="closeLoginModal(); openRegisterModal();" class="text-pink-500 hover:underline">Регистрирај се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Регистрација</h3>
+                    <button onclick="closeRegisterModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Име</label>
+                        <input type="text" id="register-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси име"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="register-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="register-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="register()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Веќе имаш профил? <a href="#" onclick="closeRegisterModal(); openLoginModal();" class="text-pink-500 hover:underline">Најави се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="session.js"></script>
+    <script>
+        // Initialize Vanta.js background
+        VANTA.BIRDS({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            backgroundColor: 0x1a1a2e,
+            color1: 0x667eea,
+            color2: 0x764ba2,
+            birdSize: 1.20,
+            wingSpan: 25.00,
+            speedLimit: 3.00,
+            separation: 30.00,
+            alignment: 30.00,
+            cohesion: 30.00,
+            quantity: 3.00
+        });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuButton = document.querySelector('.mobile-menu-btn');
+            
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(event.target) && 
+                !menuButton.contains(event.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Animate counters
+        function animateCounters() {
+            const counters = [
+                { element: document.getElementById('users-counter'), target: 150, suffix: '+' },
+                { element: document.getElementById('courses-counter'), target: 6, suffix: '' },
+                { element: document.getElementById('quizzes-counter'), target: 15, suffix: '+' },
+                { element: document.getElementById('badges-counter'), target: 25, suffix: '+' }
+            ];
+
+            counters.forEach(counter => {
+                let current = 0;
+                const increment = counter.target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= counter.target) {
+                        counter.element.textContent = counter.target + counter.suffix;
+                        clearInterval(timer);
+                    } else {
+                        counter.element.textContent = Math.floor(current) + counter.suffix;
+                    }
+                }, 50);
+            });
+        }
+
+        function showComingSoon() {
+            alert('Функцијата за приклучување на тимот ќе биде достапна наскоро! Следи не на социјалните мрежи за ажурирања.');
+        }
+
+        // Login and Registration functions
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('register-modal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email && password) {
+                // Simulate successful login
+                currentUser = {
+                    email: email,
+                    name: email.split('@')[0]
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeLoginModal();
+                alert('Успешна најава! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (name && email && password) {
+                // Simulate successful registration
+                currentUser = {
+                    email: email,
+                    name: name
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeRegisterModal();
+                alert('Успешна регистрација! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function logout() {
+            clearUserSession();
+            document.getElementById('auth-buttons').style.display = 'flex';
+            document.getElementById('user-profile').classList.remove('show');
+            alert('Успешно одјавување!');
+        }
+
+        // Initialize animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(animateCounters, 1000);
+        });
+    </script>
+
+</body>
+</html>

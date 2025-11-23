@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курсеви - Nex$tep Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="responsive.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .vanta-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .user-profile {
+            display: none;
+        }
+        
+        .user-profile.show {
+            display: flex;
+        }
+        
+        .course-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .course-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+        
+        /* Mobile Menu Button - Hidden on desktop */
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="index.html"><img src="logo.png" alt="logo Nex$tep Finance" class="h-16"></a>
+                    <span class="text-white font-bold text-xl">Nex$tep Finance</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-pink-300 transition-colors duration-300">Почетна</a>
+                    <a href="courses.html" class="text-pink-300 font-semibold">Курсеви</a>
+                    <a href="quiz.html" class="text-white hover:text-pink-300 transition-colors duration-300">Квизови</a>
+                    <a href="about.html" class="text-white hover:text-pink-300 transition-colors duration-300">За нас</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <!-- Login/Register Buttons -->
+                <div id="auth-buttons" class="hidden md:flex items-center space-x-3">
+                    <button onclick="openRegisterModal()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+                
+                <!-- User Profile -->
+                <div id="user-profile" class="user-profile items-center space-x-3">
+                    <span id="username" class="text-white font-semibold"></span>
+                    <div class="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <button onclick="logout()" class="text-white/80 hover:text-white transition-colors duration-300">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="mobile-menu">
+                <a href="index.html" class="text-gray-800 hover:text-pink-600">Почетна</a>
+                <a href="courses.html" class="text-gray-800 hover:text-pink-600">Курсеви</a>
+                <a href="quiz.html" class="text-gray-800 hover:text-pink-600">Квизови</a>
+                <a href="about.html" class="text-gray-800 hover:text-pink-600">За нас</a>
+                <div class="p-4 border-t border-gray-200">
+                    <button onclick="openRegisterModal()" class="w-full mb-2 bg-white/20 text-gray-800 px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <section class="relative pt-24 pb-12 overflow-hidden">
+        <div id="vanta-bg" class="vanta-canvas"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-5xl md:text-6xl font-black text-white mb-6">Курсеви</h1>
+            <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                Изучи ги основите на финансиската писменост преку кратки и интерактивни лекции
+            </p>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-6">Достапни курсеви</h2>
+                <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                    Избери курс според твоето ниво на знаење и интереси
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <!-- Course 1: Основи на заштеда -->
+                <div class="course-card rounded-2xl p-8 slide-in">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-piggy-bank text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Основи на заштеда</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Научи ги основите на буџетирање и заштеда. Совршено за почетници.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>30 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-green-400">Почетно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('savings')" class="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+
+                <!-- Course 2: Вовед во инвестирање -->
+                <div class="course-card rounded-2xl p-8 slide-in" style="animation-delay: 0.1s;">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Вовед во инвестирање</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Запознај се со основните концепти на инвестирање и управување со ризик.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>45 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-yellow-400">Средно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('investing')" class="w-full bg-gradient-to-r from-purple-400 to-pink-500 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+
+                <!-- Course 3: Кредити и долгови -->
+                <div class="course-card rounded-2xl p-8 slide-in" style="animation-delay: 0.2s;">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-credit-card text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Кредити и долгови</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Научи се за одговорно позајмување и управување со долгови.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>35 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-yellow-400">Средно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('credits')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+
+                <!-- Course 4: Дигитални валути -->
+                <div class="course-card rounded-2xl p-8 slide-in" style="animation-delay: 0.3s;">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fab fa-bitcoin text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Дигитални валути</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Запознај се со светот на криптовалути и дигитални средства за плаќање.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>40 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-red-400">Напредно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('crypto')" class="w-full bg-gradient-to-r from-indigo-400 to-purple-500 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+
+                <!-- Course 5: Даноци и право -->
+                <div class="course-card rounded-2xl p-8 slide-in" style="animation-delay: 0.4s;">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-balance-scale text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Даноци и право</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Научи за даноци и правните аспекти на финансиите.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>50 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-red-400">Напредно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('taxes')" class="w-full bg-gradient-to-r from-gray-400 to-gray-600 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+
+                <!-- Course 6: Финансиска безбедност -->
+                <div class="course-card rounded-2xl p-8 slide-in" style="animation-delay: 0.5s;">
+                    <div class="course-icon w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-shield-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4 text-center">Финансиска безбедност</h3>
+                    <p class="text-white/80 mb-6 text-center">
+                        Научи како да ги заштитиш своите финансии и да препознаеш измами.
+                    </p>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-clock mr-2"></i>Времетраење:</span>
+                            <span>25 минути</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-signal mr-2"></i>Ниво:</span>
+                            <span class="text-green-400">Почетно</span>
+                        </div>
+                        <div class="flex justify-between text-white/70">
+                            <span><i class="fas fa-certificate mr-2"></i>Сертификат:</span>
+                            <span class="text-yellow-400">Да</span>
+                        </div>
+                    </div>
+                    <button onclick="startCourse('security')" class="w-full bg-gradient-to-r from-red-400 to-pink-500 text-white py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни курс
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress Section -->
+    <section class="py-20 bg-white/5">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-white mb-6">Твојот напредок</h2>
+                    <p class="text-xl text-white/80">Провери колку напреднуваш во твоето финансиско образование</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="relative w-24 h-24 mx-auto mb-4">
+                                <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="transparent"/>
+                                    <circle id="progress-circle-1" cx="60" cy="60" r="50" stroke="#4ecdc4" stroke-width="8" fill="transparent" stroke-dasharray="314" stroke-dashoffset="251" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">20%</span>
+                                </div>
+                            </div>
+                            <h4 class="text-white font-semibold">Завршени курсеви</h4>
+                            <p class="text-white/70 text-sm">1 од 5 курсеви</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="relative w-24 h-24 mx-auto mb-4">
+                                <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="transparent"/>
+                                    <circle id="progress-circle-2" cx="60" cy="60" r="50" stroke="#ff6b6b" stroke-width="8" fill="transparent" stroke-dasharray="314" stroke-dashoffset="188" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">40%</span>
+                                </div>
+                            </div>
+                            <h4 class="text-white font-semibold">Квизови</h4>
+                            <p class="text-white/70 text-sm">2 од 5 квизови</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="relative w-24 h-24 mx-auto mb-4">
+                                <svg class="progress-ring w-24 h-24" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" stroke="rgba(255,255,255,0.2)" stroke-width="8" fill="transparent"/>
+                                    <circle id="progress-circle-3" cx="60" cy="60" r="50" stroke="#f7b731" stroke-width="8" fill="transparent" stroke-dasharray="314" stroke-dashoffset="94" stroke-linecap="round"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">70%</span>
+                                </div>
+                            </div>
+                            <h4 class="text-white font-semibold">Беџови</h4>
+                            <p class="text-white/70 text-sm">7 од 10 беџови</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <div class="bg-gradient-to-r from-green-400/20 to-blue-500/20 rounded-lg p-4">
+                            <h4 class="text-white font-semibold mb-2">Следен предизвик</h4>
+                            <p class="text-white/80">Заврши уште 2 квизови за да го освоиш беџот "Финансиски експерт"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black/20 backdrop-blur-md py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <span class="text-white font-bold text-xl">Nex$tep</span>
+                    <span class="text-white font-bold text-xl">Finance</span>
+                </div>
+                <p class="text-white/60 mb-4">© 2025 Nex$tep Finance. Сите права задржани.</p>
+                <p class="text-white/60 text-sm">Направено со <i class="fas fa-heart text-pink-400"></i> од млади за млади</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Course Modal -->
+    <div id="course-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="course-title" class="text-3xl font-bold text-gray-800"></h3>
+                    <button onclick="closeCourseModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div id="course-content" class="space-y-6">
+                    <!-- Course content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Најава</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="login-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="login()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најави се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Немаш профил? <a href="#" onclick="closeLoginModal(); openRegisterModal();" class="text-pink-500 hover:underline">Регистрирај се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Регистрација</h3>
+                    <button onclick="closeRegisterModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Име</label>
+                        <input type="text" id="register-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси име"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="register-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="register-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="register()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Веќе имаш профил? <a href="#" onclick="closeRegisterModal(); openLoginModal();" class="text-pink-500 hover:underline">Најави се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="session.js"></script>
+    <script>
+        // Initialize Vanta.js background
+        VANTA.BIRDS({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            backgroundColor: 0x1a1a2e,
+            color1: 0x667eea,
+            color2: 0x764ba2,
+            birdSize: 1.20,
+            wingSpan: 25.00,
+            speedLimit: 3.00,
+            separation: 30.00,
+            alignment: 30.00,
+            cohesion: 30.00,
+            quantity: 3.00
+        });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+
+        // Course content data
+        const courseContent = {
+            savings: {
+                title: "Основи на заштеда",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Основи на буџетирање</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Техники за заштеда</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Поставување финансиски цели</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Видови на заштеди</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Што е буџет?</h4>
+                            <p class="text-gray-700">Буџетот е план за распределба на твоите приходи и трошоци. Тој ти помага да ги контролираш парите и да постигнеш финансиски цели.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Правило 50/30/20</h4>
+                            <p class="text-gray-700">50% од приходот за неопходни трошоци, 30% за лични желби, 20% за заштеда и отплата на долгови.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://youtube.com/shorts/PkJGiDmamQc?si=gdmDklu1pFnTDwwo" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                    Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            },
+            investing: {
+                title: "Вовед во инвестирање",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Основи на инвестирање</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Видови на инвестиции</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Управување со ризик</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Диверзификација</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Што е инвестиција?</h4>
+                            <p class="text-gray-700">Инвестицијата е вложување на пари со цел да се добие повраток. Постојат различни видови на инвестиции со различно ниво на ризик.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Видови на инвестиции</h4>
+                            <p class="text-gray-700">Акции, обврзници, недвижнини, криптовалути - секој тип има свои карактеристики и ниво на ризик.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://milioner.mk/vote/49102709-1b74-467b-bd0e-65959f465f6a" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            },
+            credits: {
+                title: "Кредити и долгови",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Видови на кредити</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Каматни стапки</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Одговорно позајмување</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Управување со долгови</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Што е кредит?</h4>
+                            <p class="text-gray-700">Кредитот е позајмена сума на пари што треба да се врати со камата. Постојат различни видови на кредити.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Каматна стапка</h4>
+                            <p class="text-gray-700">Каматната стапка е цената на позајмување пари. Може да биде фиксна или променлива.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://youtube.com/shorts/PkJGiDmamQc?si=gdmDklu1pFnTDwwo" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                    Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            },
+            crypto: {
+                title: "Дигитални валути",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Основи на криптовалути</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Блокчејн технологија</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Безбедност и ризици</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Иднината на парите</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Што е криптовалута?</h4>
+                            <p class="text-gray-700">Криптовалутата е дигитална валута што користи криптографија за безбедност и работи на децентрализирана мрежа.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Блокчејн технологија</h4>
+                            <p class="text-gray-700">Блокчејн е технологија што овозможува транспарентни и безбедни трансакции без посредници.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://youtube.com/shorts/PkJGiDmamQc?si=gdmDklu1pFnTDwwo" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                    Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            },
+            taxes: {
+                title: "Даноци и право",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Видови на даноци</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Даночен систем</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Правни аспекти</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Даночни олеснувања</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Основи на даноци</h4>
+                            <p class="text-gray-700">Даноците се задолжителни плаќања кон државата. Постојат различни видови на даноци.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Даночен систем</h4>
+                            <p class="text-gray-700">Разбирање на даночниот систем ти помага да ги искористиш сите законски олеснувања.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://youtube.com/shorts/PkJGiDmamQc?si=gdmDklu1pFnTDwwo" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                    Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            },
+            security: {
+                title: "Финансиска безбедност",
+                content: `
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">Што ќе научиш?</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Заштита на финансии</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Препознавање измами</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Дигитална безбедност</li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i>Осигурување</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 1: Заштита на лични финансии</h4>
+                            <p class="text-gray-700">Важно е да ги заштитиш своите финансии од измами и кражба преку безбедни практики.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Лекција 2: Препознавање измами</h4>
+                            <p class="text-gray-700">Научи како да препознаеш чести финансиски измами и да се заштитиш од нив.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="https://youtube.com/shorts/PkJGiDmamQc?si=gdmDklu1pFnTDwwo" target="_blank" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-block">
+                                <i class="fas fa-vote-yea mr-2"></i>
+                                    Започни го курсот!
+                            </a>
+                            <p class="text-white/70 mt-2 text-sm">Помогни ни да ја реализираме идејата!</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Course functions
+        function startCourse(courseId) {
+            const course = courseContent[courseId];
+            if (course) {
+                document.getElementById('course-title').textContent = course.title;
+                document.getElementById('course-content').innerHTML = course.content;
+                document.getElementById('course-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeCourseModal() {
+            document.getElementById('course-modal').classList.add('hidden');
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('course-modal');
+            if (modal.classList.contains('hidden') === false && 
+                event.target === modal) {
+                closeCourseModal();
+            }
+        });
+
+        // Login and Registration functions
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('register-modal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email && password) {
+                // Simulate successful login
+                currentUser = {
+                    email: email,
+                    name: email.split('@')[0]
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeLoginModal();
+                alert('Успешна најава! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (name && email && password) {
+                // Simulate successful registration
+                currentUser = {
+                    email: email,
+                    name: name
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeRegisterModal();
+                alert('Успешна регистрација! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function logout() {
+            clearUserSession();
+            document.getElementById('auth-buttons').style.display = 'flex';
+            document.getElementById('user-profile').classList.remove('show');
+            alert('Успешно одјавување!');
+        }
+    </script>
+
+</body>
+</html>

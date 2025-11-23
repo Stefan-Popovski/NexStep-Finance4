@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nex$tep Finance - Научи да управуваш со пари</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="responsive.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .vanta-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .user-profile {
+            display: none;
+        }
+        
+        .user-profile.show {
+            display: flex;
+        }
+        
+        .hero-text {
+            background: linear-gradient(45deg, #ffffff, #f8f9ff, #e6f3ff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .feature-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .budget-simulator {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stats-number {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Mobile Menu Button - Hidden on desktop */
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        /* Mobile Menu Styles */
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="index.html"><img src="logo.png" alt="logo Nex$tep Finance" class="h-16"></a>
+                    <span class="text-white font-bold text-xl">Nex$tep Finance</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-white hover:text-pink-300 transition-colors duration-300">Почетна</a>
+                    <a href="courses.html" class="text-white hover:text-pink-300 transition-colors duration-300">Курсеви</a>
+                    <a href="quiz.html" class="text-white hover:text-pink-300 transition-colors duration-300">Квизови</a>
+                    <a href="about.html" class="text-white hover:text-pink-300 transition-colors duration-300">За нас</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <!-- Login/Register Buttons -->
+                <div id="auth-buttons" class="hidden md:flex items-center space-x-3">
+                    <button onclick="openRegisterModal()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+                
+                <!-- User Profile -->
+                <div id="user-profile" class="user-profile items-center space-x-3">
+                    <span id="username" class="text-white font-semibold"></span>
+                    <div class="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <button onclick="logout()" class="text-white/80 hover:text-white transition-colors duration-300">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="mobile-menu">
+                <a href="index.html" class="text-gray-800 hover:text-pink-600">Почетна</a>
+                <a href="courses.html" class="text-gray-800 hover:text-pink-600">Курсеви</a>
+                <a href="quiz.html" class="text-gray-800 hover:text-pink-600">Квизови</a>
+                <a href="about.html" class="text-gray-800 hover:text-pink-600">За нас</a>
+                <div class="p-4 border-t border-gray-200">
+                    <button onclick="openRegisterModal()" class="w-full mb-2 bg-white/20 text-gray-800 px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    <button onclick="openLoginModal()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300">
+                        Најава
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-24 pb-20 overflow-hidden hero-section">
+        <div id="vanta-bg" class="vanta-canvas"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-black hero-text mb-8">
+                    Парите се<br/>
+                    <span class="text-pink-400">предизвик</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Интерактивна платформа за финансиска писменост на млади.<br/>
+                    <span class="text-pink-300">Од млади за млади</span> - без здодевни предавања, само забавно учење.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                    <a href="quiz.html" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-play mr-2"></i>
+                        Започни квиз
+                    </a>
+                    <button onclick="openBudgetSimulator()" class="budget-simulator text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-calculator mr-2"></i>
+                        Буџет симулатор
+                    </button>
+                </div>
+                
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+                    <div class="glass-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-black stats-number mb-2" id="users-count">150+</div>
+                        <div class="text-white/80">Корисници</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-black stats-number mb-2">12</div>
+                        <div class="text-white/80">Курсеви</div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 text-center">
+                        <div class="text-4xl font-black stats-number mb-2">500+</div>
+                        <div class="text-white/80">Прашања</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white/5 features-section">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-6">Што ти нудиме?</h2>
+                <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                    Комплетна платформа за финансиска едукација со модерни алатки и интерактивни методи на учење.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="glass-card rounded-2xl p-8 text-center slide-in">
+                    <div class="feature-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-video text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Микро-лекции</h3>
+                    <p class="text-white/80 mb-6">
+                        Видеа и текстуални материјали (2-5 мин.) за сите финансиски теми.
+                    </p>
+                    <a href="courses.html" class="inline-block bg-gradient-to-r from-blue-400 to-purple-500 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Види курсеви
+                    </a>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.1s;">
+                    <div class="feature-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-trophy text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Квизови и предизвици</h3>
+                    <p class="text-white/80 mb-6">
+                        Тестирај го знаењето и добивај поени, дигитални беџови и награди.
+                    </p>
+                    <a href="quiz.html" class="inline-block bg-gradient-to-r from-green-400 to-blue-500 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Започни квиз
+                    </a>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.2s;">
+                    <div class="feature-icon w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calculator text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Буџет симулатор</h3>
+                    <p class="text-white/80 mb-6">
+                        Виртуелна алатка за распределба на месечен буџет и практично учење.
+                    </p>
+                    <button onclick="openBudgetSimulator()" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Пробај веднаш
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Budget Simulator Modal -->
+    <div id="budget-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-3xl font-bold text-gray-800">Буџет Симулатор</h3>
+                    <button onclick="closeBudgetSimulator()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Месечен приход (МКД)</label>
+                        <input type="number" id="monthly-income" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси месечен приход" oninput="calculateBudget()"/>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Живеалиште (%)</label>
+                            <input type="range" id="housing-percent" min="20" max="50" value="30" class="w-full" oninput="updateBudgetDisplay()">
+                            <span id="housing-value" class="text-sm text-gray-600">30%</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Храна (%)</label>
+                            <input type="range" id="food-percent" min="10" max="30" value="20" class="w-full" oninput="updateBudgetDisplay()">
+                            <span id="food-value" class="text-sm text-gray-600">20%</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Транспорт (%)</label>
+                            <input type="range" id="transport-percent" min="5" max="20" value="15" class="w-full" oninput="updateBudgetDisplay()">
+                            <span id="transport-value" class="text-sm text-gray-600">15%</span>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">Забава (%)</label>
+                            <input type="range" id="entertainment-percent" min="5" max="20" value="10" class="w-full" oninput="updateBudgetDisplay()">
+                            <span id="entertainment-value" class="text-sm text-gray-600">10%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-6">
+                        <h4 class="font-bold text-gray-800 mb-4">Буџет Преглед</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span>Живеалиште:</span>
+                                <span id="housing-amount" class="font-semibold">0 МКД</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Храна:</span>
+                                <span id="food-amount" class="font-semibold">0 МКД</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Транспорт:</span>
+                                <span id="transport-amount" class="font-semibold">0 МКД</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Забава:</span>
+                                <span id="entertainment-amount" class="font-semibold">0 МКД</span>
+                            </div>
+                            <hr class="border-gray-300">
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>Вкупно трошоци:</span>
+                                <span id="total-expenses" class="text-red-600">0 МКД</span>
+                            </div>
+                            <div class="flex justify-between font-bold text-lg">
+                                <span>Заштеда:</span>
+                                <span id="savings" class="text-green-600">0 МКД</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div id="budget-feedback" class="text-lg font-semibold mb-4"></div>
+                        <button onclick="resetBudget()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-all duration-300">
+                            Ресетирај
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black/20 backdrop-blur-md py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <span class="text-white font-bold text-xl">Nex$tep</span>
+                    <span class="text-white font-bold text-xl">Finance</span>
+                </div>
+                <p class="text-white/60 mb-4">© 2025 Nex$tep Finance. Сите права задржани.</p>
+                <p class="text-white/60 text-sm">Направено со <i class="fas fa-heart text-pink-400"></i> од млади за млади</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Најава</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="login-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="login-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="login()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Најави се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Немаш профил? <a href="#" onclick="closeLoginModal(); openRegisterModal();" class="text-pink-500 hover:underline">Регистрирај се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Регистрација</h3>
+                    <button onclick="closeRegisterModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Име</label>
+                        <input type="text" id="register-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси име"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                        <input type="email" id="register-email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси email"/>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Лозинка</label>
+                        <input type="password" id="register-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-400 focus:border-transparent" placeholder="Внеси лозинка"/>
+                    </div>
+                    
+                    <button onclick="register()" class="w-full bg-gradient-to-r from-pink-400 to-red-400 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Регистрирај се
+                    </button>
+                    
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm">Веќе имаш профил? <a href="#" onclick="closeRegisterModal(); openLoginModal();" class="text-pink-500 hover:underline">Најави се</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="session.js"></script>
+    <script>
+        // Initialize Vanta.js background
+        VANTA.BIRDS({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            backgroundColor: 0x1a1a2e,
+            color1: 0x667eea,
+            color2: 0x764ba2,
+            birdSize: 1.20,
+            wingSpan: 25.00,
+            speedLimit: 3.00,
+            separation: 30.00,
+            alignment: 30.00,
+            cohesion: 30.00,
+            quantity: 3.00
+        });
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuButton = document.querySelector('.mobile-menu-btn');
+            
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(event.target) && 
+                !menuButton.contains(event.target)) {
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Budget Simulator Functions
+        function openBudgetSimulator() {
+            document.getElementById('budget-modal').classList.remove('hidden');
+            calculateBudget();
+        }
+
+        function closeBudgetSimulator() {
+            document.getElementById('budget-modal').classList.add('hidden');
+        }
+
+        function calculateBudget() {
+            const income = parseFloat(document.getElementById('monthly-income').value) || 0;
+            
+            const housingPercent = parseFloat(document.getElementById('housing-percent').value);
+            const foodPercent = parseFloat(document.getElementById('food-percent').value);
+            const transportPercent = parseFloat(document.getElementById('transport-percent').value);
+            const entertainmentPercent = parseFloat(document.getElementById('entertainment-percent').value);
+            
+            document.getElementById('housing-value').textContent = housingPercent + '%';
+            document.getElementById('food-value').textContent = foodPercent + '%';
+            document.getElementById('transport-value').textContent = transportPercent + '%';
+            document.getElementById('entertainment-value').textContent = entertainmentPercent + '%';
+            
+            const housingAmount = (income * housingPercent / 100).toFixed(0);
+            const foodAmount = (income * foodPercent / 100).toFixed(0);
+            const transportAmount = (income * transportPercent / 100).toFixed(0);
+            const entertainmentAmount = (income * entertainmentPercent / 100).toFixed(0);
+            
+            document.getElementById('housing-amount').textContent = housingAmount + ' МКД';
+            document.getElementById('food-amount').textContent = foodAmount + ' МКД';
+            document.getElementById('transport-amount').textContent = transportAmount + ' МКД';
+            document.getElementById('entertainment-amount').textContent = entertainmentAmount + ' МКД';
+            
+            const totalExpenses = parseFloat(housingAmount) + parseFloat(foodAmount) + parseFloat(transportAmount) + parseFloat(entertainmentAmount);
+            const savings = income - totalExpenses;
+            
+            document.getElementById('total-expenses').textContent = totalExpenses.toFixed(0) + ' МКД';
+            document.getElementById('savings').textContent = savings.toFixed(0) + ' МКД';
+            
+            // Budget feedback
+            const feedback = document.getElementById('budget-feedback');
+            if (income === 0) {
+                feedback.textContent = '';
+            } else if (savings < 0) {
+                feedback.innerHTML = '<span class="text-red-600">❌ Трошиш повеќе од приходот! Намали трошоците.</span>';
+            } else if (savings < income * 0.1) {
+                feedback.innerHTML = '<span class="text-yellow-600">⚠️ Мала заштеда. Обиди се да заштедиш најмалку 10%.</span>';
+            } else if (savings >= income * 0.2) {
+                feedback.innerHTML = '<span class="text-green-600">✅ Одличен буџет! Добра заштеда.</span>';
+            } else {
+                feedback.innerHTML = '<span class="text-blue-600">👍 Добар буџет. Има простор за подобрување.</span>';
+            }
+        }
+
+        function updateBudgetDisplay() {
+            calculateBudget();
+        }
+
+        function resetBudget() {
+            document.getElementById('monthly-income').value = '';
+            document.getElementById('housing-percent').value = 30;
+            document.getElementById('food-percent').value = 20;
+            document.getElementById('transport-percent').value = 15;
+            document.getElementById('entertainment-percent').value = 10;
+            calculateBudget();
+        }
+
+        // Login and Registration functions
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('register-modal').classList.remove('hidden');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (email && password) {
+                // Simulate successful login
+                currentUser = {
+                    email: email,
+                    name: email.split('@')[0]
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeLoginModal();
+                alert('Успешна најава! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            if (name && email && password) {
+                // Simulate successful registration
+                currentUser = {
+                    email: email,
+                    name: name
+                };
+                
+                // Save session
+                saveUserSession(currentUser);
+                
+                // Update UI to show user profile
+                updateUIForLoggedInUser(currentUser);
+                
+                closeRegisterModal();
+                alert('Успешна регистрација! Добредојде во Nex$tep Finance!');
+            } else {
+                alert('Ве молиме пополнете ги сите полиња!');
+            }
+        }
+
+        function logout() {
+            clearUserSession();
+            document.getElementById('auth-buttons').style.display = 'flex';
+            document.getElementById('user-profile').classList.remove('show');
+            alert('Успешно одјавување!');
+        }
+
+        // Animate counter
+        function animateCounter() {
+            const counters = document.querySelectorAll('.stats-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent.replace('+', ''));
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target + (counter.textContent.includes('+') ? '+' : '');
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current) + (counter.textContent.includes('+') ? '+' : '');
+                    }
+                }, 50);
+            });
+        }
+
+        // Initialize animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(animateCounter, 1000);
+        });
+    </script>
+
+</body>
+</html>
