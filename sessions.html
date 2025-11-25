@@ -78,6 +78,12 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .session-feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
         
         /* Mobile Menu Button - Hidden on desktop */
@@ -113,7 +119,7 @@
                     <a href="index.html" class="text-white hover:text-pink-300 transition-colors duration-300">Почетна</a>
                     <a href="courses.html" class="text-white hover:text-pink-300 transition-colors duration-300">Курсеви</a>
                     <a href="quiz.html" class="text-white hover:text-pink-300 transition-colors duration-300">Квизови</a>
-                    <a href="sessions.html" class="block px-3 py-2 text-purple-600 font-semibold">Менторски Сесии</a>
+                    <a href="sessions.html" class="block px-1 py-2 text-purple-600 font-semibold">Менторски Сесии</a>
                     <a href="about.html" class="text-white hover:text-pink-300 transition-colors duration-300">За нас</a>
                 </div>
                 
@@ -167,7 +173,7 @@
     <section class="hero-section pt-24 pb-16 px-4">
         <div class="max-w-6xl mx-auto text-center">
             <div class="slide-in">
-                <h1 class="text-5xl font-bold text-white mb-6 hero-text">
+                <h1 class="text-5xl md:text-7xl font-black text-white mb-6 hero-text">
                     Менторски Сесии
                 </h1>
                 <p class="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
@@ -203,7 +209,7 @@
                                     <i class="fas fa-clock text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-semibold text-white mb-2">Траење 45 минути</h3>
+                                    <h3 class="text-xl font-semibold text-white mb-2">Траење: 45 минути</h3>
                                     <p class="text-white/80">Секоја сесија трае 45 минути, доволно време за детална дискусија и одговори на сите твои прашања.</p>
                                 </div>
                             </div>
@@ -215,7 +221,7 @@
                                     <i class="fas fa-credit-card text-xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-semibold text-white mb-2">Цена 300 денари</h3>
+                                    <h3 class="text-xl font-semibold text-white mb-2">Цена: 300 денари</h3>
                                     <p class="text-white/80">Сесиите чинат 300 денари и се плаќаат пред да бидат реализирани преку безбеден платежен систем.</p>
                                 </div>
                             </div>
@@ -474,7 +480,7 @@
                 
                 <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Пријава за менторска сесија</h3>
                 
-                <form id="session-form" onsubmit="submitSessionForm(event)">
+                <form id="session-form">
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Име *</label>
                         <input type="text" id="first-name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Внеси го твоето име">
@@ -531,7 +537,7 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Ви благодариме!</h3>
                 <p class="text-gray-600 mb-6">
-                    Очекувајте маил во најбрз временски период, со можни термини за одржување на финансиската сесија.
+                    Очекувајте меил во најбрз временски период, со можни термини за одржување на финансиската сесија.
                 </p>
                 <button onclick="closeSuccessModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
                     Во ред
@@ -586,6 +592,95 @@
             quantity: 3.00
         });
 
+    // emailjs.init("EUlEtSYcBPmnBUB-p");
+
+    // Intercept form submit
+    document.getElementById("session-form").addEventListener("submit", sendDetails);
+
+    function sendDetails(e) {
+        e.preventDefault();
+
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        const mentor = document.getElementById('selected-mentor').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const age = document.getElementById('age').value.trim();
+        const topic = document.getElementById('questions').value.trim();
+        
+
+        let hasError = false;
+
+        // Name validation
+        // if (!firstName) {
+        //     document.getElementById('name-error').textContent = 'Ве молиме внесете име';
+        //     document.getElementById('name-error').classList.remove('hidden');
+        //     hasError = true;
+        // } else if (!validateCyrillicName(firstName)) {
+        //     document.getElementById('name-error').textContent = 'Името мора да биде на кирилица';
+        //     document.getElementById('name-error').classList.remove('hidden');
+        //     hasError = true;
+        // }
+
+        // Email validation
+        // if (!email) {
+        //     document.getElementById('email-error').textContent = 'Ве молиме внесете email адреса';
+        //     document.getElementById('email-error').classList.remove('hidden');
+        //     hasError = true;
+        // } else if (!validateEmail(email)) {
+        //     document.getElementById('email-error').textContent = 'Ве молиме внесете валидна email адреса';
+        //     document.getElementById('email-error').classList.remove('hidden');
+        //     hasError = true;
+        // }
+
+        if (hasError) return;
+        debugger;
+        // SEND EMAIL
+        emailjs.send("service_olsgi0k", "template_75pu9la", {
+            firstName: firstName,
+            lastName: lastName,
+            mentor: mentor,
+            email: email,
+            age: age,
+            topic: topic,
+            time: new Date().toLocaleString(),
+        }).then(() => {
+
+            // Show success modal
+            document.getElementById("success-modal").classList.remove("hidden");
+
+            // Reset form
+            document.getElementById('session-form').reset();
+
+        }).catch((error) => {
+            console.error("EmailJS send error:", error);
+            alert("Грешка при испраќање email.");
+        });
+    }
+
+
+    function simulateEmailSending(name, recipientEmail) {
+            // Simulate sending email from nexstep.finance2@gmail.com
+            const emailData = {
+                from: 'nexstep.finance2@gmail.com',
+                to: recipientEmail,
+                subject: 'Закажана средба - Nex$tep Finance',
+                body: `
+                    Почитуван/а ${name},
+                    
+                    Ви честитаме за успешно закажаната средба со финансиски експерт!
+                    
+                    Со почит,
+                    Nex$tep Finance тим
+                `
+            };
+            
+            console.log('Испраќање на потврда:', emailData);
+            
+            // Show success message
+            alert(`Потврдата за сесијата е успешно испратена од nexstep.finance2@gmail.com на ${recipientEmail} за ${name}!`);
+        }
+
+
         // Mobile menu toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
@@ -608,20 +703,21 @@
         function closeSuccessModal() {
             document.getElementById('success-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+            closeSessionModal();
         }
 
         // Authentication functions (placeholder)
-        function showLogin() {
-            alert('Функцијата за најава ќе биде достапна наскоро!');
-        }
+        // function showLogin() {
+        //     alert('Функцијата за најава ќе биде достапна наскоро!');
+        // }
 
-        function showRegister() {
-            alert('Функцијата за регистрација ќе биде достапна наскоро!');
-        }
+        // function showRegister() {
+        //     alert('Функцијата за регистрација ќе биде достапна наскоро!');
+        // }
 
-        function logout() {
-            alert('Функцијата за одјава ќе биде достапна наскоро!');
-        }
+        // function logout() {
+        //     alert('Функцијата за одјава ќе биде достапна наскоро!');
+        // }
 
         // Initialize animations on scroll
         function initScrollAnimations() {

@@ -207,7 +207,7 @@
                     <a href="index.html" class="text-white hover:text-pink-300 transition-colors duration-300">Почетна</a>
                     <a href="courses.html" class="text-white hover:text-pink-300 transition-colors duration-300">Курсеви</a>
                     <a href="quiz.html" class="text-pink-300 font-semibold">Квизови</a>
-                    <a href="sessions.html" class="block px-3 py-2 text-purple-600 font-semibold">Менторски Сесии</a>
+                    <a href="sessions.html" class="block px-1 py-2 text-purple-600 font-semibold">Менторски Сесии</a>
                     <a href="about.html" class="text-white hover:text-pink-300 transition-colors duration-300">За нас</a>
                 </div>
                 
@@ -396,7 +396,7 @@
                                 <div class="space-y-4">
                                     <form id="certificateForm">
                                         <input type="text" id="certificate-name" placeholder="Внеси име (на кирилица)" 
-                                               class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400" required name="name">
+                                               class="w-full p-3 my-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400" required name="name">
                                         <div id="name-error" class="error-message hidden"></div>
                                     </div>
                                     <div>
@@ -555,7 +555,7 @@
             </div>
         </div>
     </div>
-
+    <script src="session.js"></script>
     <script>
 
         
@@ -596,6 +596,10 @@
         let answeredQuestions = {};
         let currentScore = 0;
         let allAnswered = false;
+        
+        
+        document.getElementById("certificateForm").addEventListener("submit", sendCertificate);
+        
         
         // Predefined answer sets
         const answerSets = [
@@ -800,7 +804,9 @@
             return emailPattern.test(email);
         }
         
-        function sendCertificate() {
+        function sendCertificate(e) {
+            e.preventDefault();
+    
             const name = document.getElementById('certificate-name').value.trim();
             const email = document.getElementById('certificate-email').value.trim();
             
@@ -810,69 +816,49 @@
             
             let hasError = false;
             
-            // Validate name (Cyrillic only)
-            if (!name) {
-                document.getElementById('name-error').textContent = 'Ве молиме внесете име';
-                document.getElementById('name-error').classList.remove('hidden');
-                hasError = true;
-            } else if (!validateCyrillicName(name)) {
-                document.getElementById('name-error').textContent = 'Името мора да биде на кирилица';
-                document.getElementById('name-error').classList.remove('hidden');
-                hasError = true;
-            }
-            
-            // Validate email
-            if (!email) {
-                document.getElementById('email-error').textContent = 'Ве молиме внесете email адреса';
-                document.getElementById('email-error').classList.remove('hidden');
-                hasError = true;
-            } else if (!validateEmail(email)) {
-                document.getElementById('email-error').textContent = 'Ве молиме внесете валидна email адреса';
-                document.getElementById('email-error').classList.remove('hidden');
-                hasError = true;
-            }
-            
-            if (!hasError) {
-                // Simulate automatic email sending from nexstep.finance2@gmail.com
-                simulateEmailSending(name, email);
-                
-                // Reset form
-                document.getElementById('certificate-name').value = '';
-                document.getElementById('certificate-email').value = '';
-            }
-            
-            (function(){
-                emailjs.init("EUlEtSYcBPmnBUB-p"); 
-            })();
+            // Validate name
+    if (!name) {
+        document.getElementById('name-error').textContent = 'Ве молиме внесете име';
+        document.getElementById('name-error').classList.remove('hidden');
+        hasError = true;
+    } else if (!validateCyrillicName(name)) {
+        document.getElementById('name-error').textContent = 'Името мора да биде на кирилица';
+        document.getElementById('name-error').classList.remove('hidden');
+        hasError = true;
+    }
+
+    // Validate email
+    if (!email) {
+        document.getElementById('email-error').textContent = 'Ве молиме внесете email адреса';
+        document.getElementById('email-error').classList.remove('hidden');
+        hasError = true;
+    } else if (!validateEmail(email)) {
+        document.getElementById('email-error').textContent = 'Ве молиме внесете валидна email адреса';
+        document.getElementById('email-error').classList.remove('hidden');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    // --- SEND EMAIL THROUGH EMAILJS ---
+    emailjs.send("service_olsgi0k", "template_rocndaa", {
+        name: name,
+        email: email,
+        time: new Date().toLocaleString(),
+        certificate_link: "https://ibb.co/cKhsjJr6"
+    }).then(() => {
+        alert("Сертификатот беше успешно испратен на вашата email адреса!");
+
+        // Reset form after success
+        document.getElementById('certificate-name').value = '';
+        document.getElementById('certificate-email').value = '';
         
-          const form = document.getElementById("certificateForm");
-        
-            form.addEventListener("submit", function(e) {
-            e.preventDefault();
-        
-            const name = document.getElementById("certificate-name").value;
-            const email = document.getElementById("certificate-email").value;
-        
-            emailjs.sendForm("service_olsgi0k", "template_rocndaa", this)
-                .then(() => {
-                alert("Certificate sent to your inbox!");
-                }, (error) => {
-                console.error("EmailJS Error:", error);
-                alert("Oops, something went wrong.");
-                });
-            });
-        
-            emailjs.send("service_olsgi0k", "template_rocndaa", {
-            name: name,
-            email: email,
-            time: new Date().toLocaleString(),
-            certificate_link: "https://ibb.co/cKhsjJr6"
-            }).then(() => {
-                console.log("Email sent successfully!");
-            }, (error) => {
-                console.error("EmailJS send error:", error);
-            });
-        }
+    }).catch(error => {
+        console.error("EmailJS Error:", error);
+        alert("Настана грешка при испраќањето. Ве молиме обидете се повторно.");
+    });
+}
+
 
         function simulateEmailSending(name, recipientEmail) {
             // Simulate sending email from nexstep.finance2@gmail.com
@@ -898,16 +884,6 @@
             alert(`Сертификатот е успешно испратен од nexstep.finance2@gmail.com на ${recipientEmail} за ${name}!`);
         }
 
-        // Admin panel functions
-        function openAdminPanel() {
-            document.getElementById('admin-overlay').classList.add('show');
-            document.getElementById('admin-panel').classList.add('show');
-        }
-
-        function closeAdminPanel() {
-            document.getElementById('admin-overlay').classList.remove('show');
-            document.getElementById('admin-panel').classList.remove('show');
-        }
 
         function changeAnswerSet() {
             const select = document.getElementById('answer-set-select');
@@ -926,25 +902,6 @@
             }
             
             console.log('Changed to answer set:', correctAnswers);
-        }
-
-        function saveAdminSettings() {
-            const answerSetSelect = document.getElementById('answer-set-select');
-            const type = document.getElementById('certificate-type').value;
-            const message = document.getElementById('certificate-message').value;
-            
-            // Save answer set selection
-            if (answerSetSelect.value !== 'random') {
-                currentAnswerSetIndex = parseInt(answerSetSelect.value);
-                correctAnswers = answerSets[currentAnswerSetIndex].answers;
-            }
-            
-            // Save certificate settings
-            adminSettings.certificateType = type;
-            adminSettings.certificateMessage = message || 'Совршено познавање на финансиските концепти! Ти заслужуваш златен беџ!';
-            
-            alert('Админ подесувањата се зачувани!');
-            closeAdminPanel();
         }
 
         // Login and Registration functions

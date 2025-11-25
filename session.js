@@ -1,5 +1,9 @@
 // Session management for Nex$tep Finance
 
+(function(){
+    emailjs.init("EUlEtSYcBPmnBUB-p"); 
+})();
+
 // Check if user is already logged in on page load
 function checkUserSession() {
     const userData = localStorage.getItem('nexstep_user');
