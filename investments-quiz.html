@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Квизови - Nex$tep Finance</title>
+    <title>Квиз: Инвестирање - Nex$tep Finance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
@@ -273,8 +273,8 @@
         <div class="container mx-auto px-4">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl font-bold text-white mb-4">Финансиски квиз</h2>
-                    <p class="text-xl text-white/80">Тестирај го своето финансиско предзнаење</p>
+                    <h2 class="text-4xl font-bold text-white mb-4">Квиз: Инвестирање</h2>
+                    <p class="text-xl text-white/80">Провери колку знаеш за различните видови инвестиции.</p>
                 </div>
                 
                 <!-- Quiz Container -->
@@ -292,80 +292,80 @@
                     
                     <!-- Quiz Questions -->
                     <div id="question-1" class="quiz-container active">
-                        <h3 class="text-2xl font-bold text-white mb-6">Што е буџет?</h3>
+                        <h3 class="text-2xl font-bold text-white mb-6">Што значи да инвестираш?</h3>
                         <div class="space-y-4">
                             <button onclick="selectAnswer(1, 'a', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                а) План за трошење и заштеда на пари
+                                а) Да ги оставиш парите дома
                             </button>
                             <button onclick="selectAnswer(1, 'b', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                б) Сметка во банка
+                                б) Да ги потрошиш на работи
                             </button>
                             <button onclick="selectAnswer(1, 'c', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                в) Кредит од банка
+                                в) Да вложиш за да растат
                             </button>
                         </div>
                         <div id="feedback-1" class="feedback-message mt-4 hidden"></div>
                     </div>
                     
                     <div id="question-2" class="quiz-container">
-                        <h3 class="text-2xl font-bold text-white mb-6">Колку треба да заштедуваш од месечниот приход?</h3>
+                        <h3 class="text-2xl font-bold text-white mb-6">Која инвестиција е најмалку ризична?</h3>
                         <div class="space-y-4">
                             <button onclick="selectAnswer(2, 'a', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                а) Се што остане на крајот од месецот
+                                а) Криптовалути
                             </button>
                             <button onclick="selectAnswer(2, 'b', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                б) Најмалку 10-20%
+                                б) Акции на стартапи
                             </button>
                             <button onclick="selectAnswer(2, 'c', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                в) Ништо, треба да се троши се
+                                в) Државни обврзници
                             </button>
                         </div>
                         <div id="feedback-2" class="feedback-message mt-4 hidden"></div>
                     </div>
                     
                     <div id="question-3" class="quiz-container">
-                        <h3 class="text-2xl font-bold text-white mb-6">Што е каматна стапка?</h3>
+                        <h3 class="text-2xl font-bold text-white mb-6">Зошто се диверзифицира портфолио?</h3>
                         <div class="space-y-4">
                             <button onclick="selectAnswer(3, 'a', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                а) Фиксна цена на производ
+                                а) Да ставиш во една опција
                             </button>
                             <button onclick="selectAnswer(3, 'b', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                б) Процент што го плаќаш за позајмени пари
+                                б) Да намалиш ризик
                             </button>
                             <button onclick="selectAnswer(3, 'c', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                в) Данок на приход
+                                в) Да плаќаш повеќе провизии
                             </button>
                         </div>
                         <div id="feedback-3" class="feedback-message mt-4 hidden"></div>
                     </div>
                     
                     <div id="question-4" class="quiz-container">
-                        <h3 class="text-2xl font-bold text-white mb-6">Кој е најдобар начин за инвестирање?</h3>
+                        <h3 class="text-2xl font-bold text-white mb-6">Инвестирање на долг рок е: </h3>
                         <div class="space-y-4">
                             <button onclick="selectAnswer(4, 'a', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                а) Сите пари во една инвестиција
+                                а) Купи денес — продај утре
                             </button>
                             <button onclick="selectAnswer(4, 'b', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                б) Чување пари дома
+                                б) Само брза добивка
                             </button>
                             <button onclick="selectAnswer(4, 'c', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                в) Диверзификација - распределба на ризикот
+                                в) Држење инвестиции со години
                             </button>
                         </div>
                         <div id="feedback-4" class="feedback-message mt-4 hidden"></div>
                     </div>
                     
                     <div id="question-5" class="quiz-container">
-                        <h3 class="text-2xl font-bold text-white mb-6">Што е кредитен рејтинг?</h3>
+                        <h3 class="text-2xl font-bold text-white mb-6">Кој од понудените е пример за пасивна инвестиција?</h3>
                         <div class="space-y-4">
                             <button onclick="selectAnswer(5, 'a', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                а) Број на кредитни картички
+                                а) Активно дневно тргување
                             </button>
                             <button onclick="selectAnswer(5, 'b', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                б) Оцена за твоја способност да враќаш долгови
+                                б) Често купување/продавање крипто
                             </button>
                             <button onclick="selectAnswer(5, 'c', this)" class="quiz-option w-full text-left p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all duration-300">
-                                в) Износ на заштеда
+                                в) Фонд што автоматски распределува
                             </button>
                         </div>
                         <div id="feedback-5" class="feedback-message mt-4 hidden"></div>
@@ -429,6 +429,36 @@
             
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="glass-card rounded-2xl p-8 text-center slide-in">
+                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-credit-card text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Квиз: Заработување</h3>
+                    <p class="text-white/80 mb-6">
+                        Научи да ги максимизираш своите месечни приходи.
+                    </p>
+                    <button class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        <a href="income-quiz.html">
+                            Започни квиз
+                        </a>
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.1s;">
+                    <div class="w-16 h-16 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-coins text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-4">Финансиски квиз</h3>
+                    <p class="text-white/80 mb-6">
+                        Тестирај го своето финансиско предзнаење.
+                    </p>
+                    <button class="bg-gradient-to-r from-gray-400 to-gray-600 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        <a href="quiz.html">
+                            Започни квиз
+                        </a>
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.2s;">
                     <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                         <i class="fas fa-piggy-bank text-white text-2xl"></i>
                     </div>
@@ -443,35 +473,6 @@
                     </button>
                 </div>
                 
-                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.1s;">
-                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-chart-line text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-4">Квиз: Инвестирање</h3>
-                    <p class="text-white/80 mb-6">
-                        Провери колку знаеш за различните видови инвестиции.
-                    </p>
-                    <button onclick="startSpecializedQuiz('инвестирање')" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        <a href="investments-quiz.html">
-                            Започни квиз
-                        </a>
-                    </button>
-                </div>
-                
-                <div class="glass-card rounded-2xl p-8 text-center slide-in" style="animation-delay: 0.2s;">
-                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-credit-card text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white mb-4">Квиз: Заработување</h3>
-                    <p class="text-white/80 mb-6">
-                        Научи да ги максимизираш своите месечни приходи.
-                    </p>
-                    <button onclick="startSpecializedQuiz('заработување')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                        <a href="income-quiz.html">
-                            Започни квиз
-                        </a>
-                    </button>
-                </div>
             </div>
         </div>
     </section>
@@ -610,14 +611,12 @@
         
         // Predefined answer sets
         const answerSets = [
-            { name: 'Сет 1', answers: { 1: 'a', 2: 'b', 3: 'b', 4: 'c', 5: 'b' } },
-            { name: 'Сет 2', answers: { 1: 'c', 2: 'a', 3: 'b', 4: 'a', 5: 'c' } },
-            { name: 'Сет 3', answers: { 1: 'b', 2: 'c', 3: 'a', 4: 'b', 5: 'a' } },
-            { name: 'Сет 4', answers: { 1: 'a', 2: 'c', 3: 'c', 4: 'b', 5: 'b' } },
-            { name: 'Сет 5', answers: { 1: 'c', 2: 'b', 3: 'a', 4: 'c', 5: 'a' } }
+            { name: 'Сет 1', answers: { 1: 'b', 2: 'c', 3: 'c', 4: 'b', 5: 'b' } },
+            { name: 'Сет 2', answers: { 1: 'c', 2: 'c', 3: 'b', 4: 'c', 5: 'c' } },
+            { name: 'Сет 3', answers: { 1: 'b', 2: 'b', 3: 'c', 4: 'b', 5: 'b' } },
         ];
         
-        let currentAnswerSetIndex = 0;
+        let currentAnswerSetIndex = 1;
         
         // Admin settings
         let adminSettings = {
@@ -763,7 +762,7 @@
             let backgroundClass = '';
             
             if (score === 5) {
-                message = '🎉 БРАВО! Ти си финансиски експерт!';
+                message = '🎉 БРАВО! Ти си експерт за инвестирање!';
                 feedback = adminSettings.certificateMessage;
                 backgroundClass = 'bg-gradient-to-r from-green-400 to-blue-500';
             } else if (score === 4) {
@@ -816,7 +815,7 @@
     
             const name = document.getElementById('certificate-name').value.trim();
             const email = document.getElementById('certificate-email').value.trim();
-            const quiz = 'финансии'
+            const quiz = 'инвестирање';
             
             // Clear previous errors
             document.getElementById('name-error').classList.add('hidden');
@@ -848,15 +847,14 @@
 
     if (hasError) return;
 
-    // --- SEND EMAIL THROUGH EMAILJS ---
     emailjs.send("service_olsgi0k", "template_rocndaa", {
         name: name,
         email: email,
         time: new Date().toLocaleString(),
         quiz: quiz,
-        certificate_link: "https://ibb.co/9m6q0qwt"
+        certificate_link: "https://ibb.co/hRGhLKG3"
     }).then(() => {
-        alert("Сертификатот беше успешно испратен на вашата email адреса!");
+        alert("Сертификатот е успешно испратен на вашата email адреса!");
 
         // Reset form after success
         document.getElementById('certificate-name').value = '';
@@ -985,10 +983,6 @@
             document.getElementById('username').textContent = user.name;
             document.getElementById('user-profile').classList.add('show');
         }
-
-        // function startSpecializedQuiz(type) {
-        //     alert(`Квизот за ${type} ќе биде достапен наскоро! Продолжи со основниот квиз засега.`);
-        // }
     </script>
 
 </body>
