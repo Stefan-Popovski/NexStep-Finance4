@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.birds.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -432,20 +433,20 @@
                             <div id="certificate-form" class="certificate-form bg-white/20 rounded-xl p-6 mt-6">
                                 <h4 class="text-xl font-bold text-white mb-4">Испрати сертификат</h4>
                                 <div class="space-y-4">
-                                    <div>
-                                        <input type="text" id="certificate-name" placeholder="Внеси име (само на кирилица)" 
-                                               class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400">
+                                    <form id="certificateForm">
+                                        <input type="text" id="certificate-name" placeholder="Внеси име (на кирилица)" 
+                                               class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400" required name="name">
                                         <div id="name-error" class="error-message hidden"></div>
                                     </div>
                                     <div>
                                         <input type="email" id="certificate-email" placeholder="Внеси email адреса" 
-                                               class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400">
+                                               class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/70 border border-white/30 focus:outline-none focus:ring-2 focus:ring-pink-400" required name="email">
                                         <div id="email-error" class="error-message hidden"></div>
                                     </div>
-                                    <button onclick="sendCertificate()" class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    <button class="bg-gradient-to-r from-pink-400 to-red-400 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300" type="submit" onclick="sendCertificate()">
                                         Испрати сертификат
                                     </button>
-                                </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -595,6 +596,8 @@
     </div>
 
     <script>
+
+        
         // Initialize Vanta.js background
         VANTA.BIRDS({
             el: "#vanta-bg",
@@ -616,13 +619,13 @@
             cohesion: 30.00,
             quantity: 3.00
         });
-
+        
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('active');
         }
-
+        
         // Quiz functionality
         let currentQuestion = 1;
         let totalQuestions = 5;
@@ -632,7 +635,7 @@
         let answeredQuestions = {};
         let currentScore = 0;
         let allAnswered = false;
-
+        
         // Predefined answer sets
         const answerSets = [
             { name: 'Сет 1', answers: { 1: 'a', 2: 'b', 3: 'b', 4: 'c', 5: 'b' } },
@@ -641,27 +644,27 @@
             { name: 'Сет 4', answers: { 1: 'a', 2: 'c', 3: 'c', 4: 'b', 5: 'b' } },
             { name: 'Сет 5', answers: { 1: 'c', 2: 'b', 3: 'a', 4: 'c', 5: 'a' } }
         ];
-
+        
         let currentAnswerSetIndex = 0;
-
+        
         // Admin settings
         let adminSettings = {
             certificateType: 'expert',
             certificateMessage: 'Совршено познавање на финансиските концепти! Ти заслужуваш златен беџ!'
         };
-
+        
         // User data
         let currentUser = null;
-
+        
         // Initialize correct answers from current set
         function initializeAnswers() {
             correctAnswers = answerSets[currentAnswerSetIndex].answers;
             console.log('Current answer set:', answerSets[currentAnswerSetIndex].name, correctAnswers);
         }
-
+        
         // Initialize answers on page load
         initializeAnswers();
-
+        
         function selectAnswer(question, answer, element) {
             // Check if question is already answered
             if (answeredQuestions[question]) {
@@ -706,11 +709,11 @@
             // Check if all questions are answered
             checkAllAnswered();
         }
-
+        
         function updateScoreDisplay() {
             document.getElementById('quiz-score').textContent = `${currentScore} поени`;
         }
-
+        
         function checkAllAnswered() {
             let answeredCount = 0;
             for (let i = 1; i <= totalQuestions; i++) {
@@ -725,7 +728,7 @@
                 nextBtn.onclick = finishQuiz;
             }
         }
-
+        
         function nextQuestion() {
             if (currentQuestion < totalQuestions) {
                 document.getElementById(`question-${currentQuestion}`).classList.remove('active');
@@ -747,7 +750,7 @@
                 }
             }
         }
-
+        
         function previousQuestion() {
             if (currentQuestion > 1) {
                 document.getElementById(`question-${currentQuestion}`).classList.remove('active');
@@ -766,7 +769,7 @@
                 document.getElementById('next-btn').onclick = nextQuestion;
             }
         }
-
+        
         function finishQuiz() {
             // Final score is already calculated in currentScore
             score = currentScore;
@@ -825,17 +828,17 @@
                 document.getElementById('certificate-form').classList.add('show');
             }
         }
-
+        
         function validateCyrillicName(name) {
             const cyrillicPattern = /^[\u0400-\u04FF\s]+$/;
             return cyrillicPattern.test(name);
         }
-
+        
         function validateEmail(email) {
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailPattern.test(email);
         }
-
+        
         function sendCertificate() {
             const name = document.getElementById('certificate-name').value.trim();
             const email = document.getElementById('certificate-email').value.trim();
@@ -876,6 +879,37 @@
                 document.getElementById('certificate-name').value = '';
                 document.getElementById('certificate-email').value = '';
             }
+            (function(){
+                emailjs.init("EUlEtSYcBPmnBUB-p"); 
+            })();
+        
+          const form = document.getElementById("certificateForm");
+        
+            form.addEventListener("submit", function(e) {
+            e.preventDefault();
+        
+            const name = document.getElementById("certificate-name").value;
+            const email = document.getElementById("certificate-email").value;
+        
+            emailjs.sendForm("service_olsgi0k", "template_rocndaa", this)
+                .then(() => {
+                alert("Certificate sent to your inbox!");
+                }, (error) => {
+                console.error("EmailJS Error:", error);
+                alert("Oops, something went wrong.");
+                });
+            });
+        
+            emailjs.send("service_olsgi0k", "template_rocndaa", {
+            name: name,
+            email: email,
+            time: new Date().toLocaleString(),
+            certificate_link: "https://ibb.co/cKhsjJr6"
+            }).then(() => {
+                console.log("Email sent successfully!");
+            }, (error) => {
+                console.error("EmailJS send error:", error);
+            });
         }
 
         function simulateEmailSending(name, recipientEmail) {
